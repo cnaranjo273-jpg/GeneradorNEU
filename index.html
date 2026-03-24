@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Generador de Códigos NEU DOMLS_QUITO - Firebase</title>
+    <title>Generador de Códigos NEU - EEQ</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1140/1140042.png">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -15,7 +16,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e6e9f0 0%, #eef2f3 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -25,9 +26,62 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             overflow: hidden;
             animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .logo-corner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .logo-corner:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-corner img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .logo-corner-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 51, 102, 0.9);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .logo-corner-right span {
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .logo-corner-right small {
+            color: #FFB81C;
+            font-size: 0.7rem;
         }
 
         @keyframes fadeIn {
@@ -42,10 +96,11 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .logo {
@@ -57,13 +112,15 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1);
         }
 
         .header h1 {
             font-size: 2rem;
             margin: 0;
+            font-weight: 600;
         }
 
         .subtitle {
@@ -86,7 +143,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #ffc107;
+            background: #FFB81C;
             animation: pulse 1.5s infinite;
         }
 
@@ -111,14 +168,16 @@
             grid-template-columns: 1fr auto;
             gap: 20px;
             padding: 30px;
-            background: #f8f9fa;
+            background: #F8F9FA;
             border-bottom: 1px solid #e9ecef;
         }
 
         .generator-section h2 {
-            color: #495057;
+            color: #003366;
             margin-bottom: 15px;
             font-size: 1.3rem;
+            border-left: 4px solid #FFB81C;
+            padding-left: 12px;
         }
 
         .form-group {
@@ -146,8 +205,8 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
         }
 
         .form-group small {
@@ -169,12 +228,13 @@
             text-align: center;
             min-width: 120px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-top: 3px solid #FFB81C;
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
-            color: #667eea;
+            color: #003366;
         }
 
         .stat-label {
@@ -197,13 +257,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 51, 102, 0.4);
         }
 
         .btn-secondary {
@@ -253,12 +313,12 @@
         }
 
         .filter-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: #0066CC;
+            color: #0066CC;
         }
 
         .filter-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
             color: white;
             border-color: transparent;
         }
@@ -299,7 +359,7 @@
 
         .search-box input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #0066CC;
         }
 
         .clear-search {
@@ -339,7 +399,7 @@
         }
 
         thead {
-            background: #f8f9fa;
+            background: #F8F9FA;
             border-bottom: 2px solid #dee2e6;
         }
 
@@ -347,7 +407,7 @@
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: #495057;
+            color: #003366;
         }
 
         td {
@@ -356,7 +416,7 @@
         }
 
         tbody tr:hover {
-            background: #f8f9fa;
+            background: #F8F9FA;
         }
 
         .empty-row td {
@@ -376,7 +436,7 @@
 
         .user-badge.owner {
             background: #e3f2fd;
-            color: #1976d2;
+            color: #003366;
             font-weight: 500;
         }
 
@@ -415,16 +475,17 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 1000;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .spinner {
             width: 40px;
             height: 40px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border-top: 4px solid #FFB81C;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
@@ -441,7 +502,7 @@
             align-items: center;
             gap: 15px;
             padding: 20px 30px;
-            background: #f8f9fa;
+            background: #F8F9FA;
             border-top: 1px solid #e9ecef;
         }
 
@@ -455,9 +516,9 @@
         }
 
         .pagination button:hover:not(:disabled) {
-            background: #667eea;
+            background: #003366;
             color: white;
-            border-color: #667eea;
+            border-color: #003366;
         }
 
         .pagination button:disabled {
@@ -487,6 +548,14 @@
 
         .notification.show {
             opacity: 1;
+        }
+
+        .footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
         }
 
         @media (max-width: 768px) {
@@ -534,15 +603,46 @@
                 padding: 6px 15px;
                 font-size: 0.85rem;
             }
+            
+            .logo-corner {
+                width: 45px;
+                height: 45px;
+                top: 10px;
+                left: 10px;
+            }
+            
+            .logo-corner img {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .logo-corner-right {
+                top: 10px;
+                right: 10px;
+                padding: 5px 10px;
+            }
+            
+            .logo-corner-right span {
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="logo-corner">
+            <img src="https://cdn-icons-png.flaticon.com/512/1140/1140042.png" alt="Logo EEQ">
+        </div>
+        <div class="logo-corner-right">
+            <span>EMPRESA ELÉCTRICA QUITO</span>
+            <small>NEU</small>
+        </div>
         <div class="header">
             <div class="logo">
                 <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    <path d="M12 7v10"/>
+                    <path d="M7 12h10"/>
                 </svg>
                 <h1>Generador de Códigos NEU</h1>
             </div>
@@ -660,6 +760,10 @@
             <span id="pageInfo">Página 1</span>
             <button id="nextPage" disabled>Siguiente</button>
         </div>
+        <div class="footer">
+            <p>© 2024 Empresa Eléctrica Quito - Sistema de Generación de Códigos NEU</p>
+            <p style="font-size: 0.7rem; margin-top: 5px;">Códigos generados con formato YYMMDD_RRR</p>
+        </div>
         <div id="notification" class="notification"></div>
     </div>
     <script type="importmap">
@@ -685,6 +789,7 @@
             appId: "1:358064756986:web:a126bbd429f2baa6fc9143",
             measurementId: "G-HLBGVJTTWG"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
@@ -717,7 +822,7 @@
         };
         function showNotification(message, type = 'success') {
             elements.notification.textContent = message;
-            elements.notification.style.backgroundColor = type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545';
+            elements.notification.style.backgroundColor = type === 'success' ? '#28a745' : type === 'warning' ? '#FFB81C' : '#dc3545';
             elements.notification.style.color = type === 'warning' ? '#000' : '#fff';
             elements.notification.classList.add('show');
             setTimeout(() => {
@@ -739,7 +844,7 @@
                 day: 'numeric'
             });
         }
-        
+
         function formatDateTime(date) {
             if (!date) return 'Fecha inválida';
             return date.toLocaleString('es-ES', {
@@ -973,12 +1078,12 @@
                     <tr>
                         <td>${start + index + 1}</td>
                         <td>
-                            <strong style="color: #667eea; font-family: monospace; font-size: 1.1rem;">${code.code}</strong>
+                            <strong style="color: #003366; font-family: monospace; font-size: 1.1rem;">${code.code}</strong>
                         </td>
                         <td>${formatDate(code.codeDate)}</td>
                         <td>
                             <span class="user-badge ${isOwner ? 'owner' : ''}">
-                                ${code.userEmail === 'Usuario Anónimo' ? '👤 Anónimo' : `👤 ${code.userEmail}`}
+                                ${code.userEmail === 'Usuario Anónimo' ? '⚡ Anónimo' : `⚡ ${code.userEmail}`}
                                 ${isOwner ? ' (Tú)' : ''}
                             </span>
                         </td>
@@ -1091,10 +1196,10 @@
             
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Códigos NEU');
+            XLSX.utils.book_append_sheet(wb, ws, 'Códigos NEU EEQ');
             
             const filterType = currentFilter === 'myCodes' ? 'mis_codigos' : 'todos';
-            const fileName = `neu_codes_${filterType}_${new Date().toISOString().slice(0,19)}.xlsx`;
+            const fileName = `EEQ_NEU_codes_${filterType}_${new Date().toISOString().slice(0,19)}.xlsx`;
             XLSX.writeFile(wb, fileName);
             showNotification(`📊 Exportados ${filteredCodes.length} códigos a Excel`, 'success');
         };
@@ -1110,7 +1215,6 @@
         window.deleteCodeById = function(id, userId) {
             deleteCode(id, userId);
         };
-
         setupEventListeners();
         initAuth();
     </script>
