@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Generador de Códigos NEU - Firebase</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .user-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffc107;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+            animation: none;
+        }
+
+        .status-indicator.error {
+            background: #dc3545;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Panel de Control */
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .generator-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .stats-section {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Botones */
+        .btn-primary, .btn-secondary, .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Filtros */
+        .filter-section {
+            padding: 15px 30px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Buscador y acciones */
+        .search-actions {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #6c757d;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 1.2rem;
+            padding: 0 5px;
+        }
+
+        .clear-search:hover {
+            color: #dc3545;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Tabla */
+        .table-container {
+            position: relative;
+            overflow-x: auto;
+            padding: 0 30px 20px 30px;
+            min-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        /* Badge de usuario */
+        .user-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #495057;
+        }
+
+        .user-badge.owner {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        /* Botones de acción en tabla */
+        .copy-btn, .delete-btn {
+            padding: 5px 10px;
+            margin: 0 3px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #pageInfo {
+            color: #495057;
+            font-weight: 500;
+        }
+
+        /* Notificación */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-section {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .stat-card {
+                min-width: 100px;
+                padding: 15px;
+            }
+            
+            .search-actions {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .action-buttons button {
+                flex: 1;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .filter-section {
+                padding: 10px 15px;
+            }
+            
+            .filter-btn {
+                padding: 6px 15px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <h1>Generador de Códigos NEU</h1>
+            </div>
+            <p class="subtitle">Formato: <strong>YYMMDD_RRR</strong> (Ejemplo: 241225_ABC)</p>
+            <div id="userStatus" class="user-status">
+                <div class="status-indicator"></div>
+                <span id="statusText">Conectando...</span>
+            </div>
+        </div>
+
+        <!-- Panel de Control -->
+        <div class="control-panel">
+            <div class="generator-section">
+                <h2>Generar Nuevo Código</h2>
+                <div class="form-group">
+                    <label for="datePicker">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Fecha (opcional)
+                    </label>
+                    <input type="date" id="datePicker">
+                    <small>Si no seleccionas fecha, se usará la fecha actual</small>
+                </div>
+                <button id="generateBtn" class="btn-primary">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 12a9 9 0 11-9-9M12 6v6l4 2"/>
+                        <path d="M15 3h6v6"/>
+                    </svg>
+                    Generar Código NEU
+                </button>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCodes">0</div>
+                    <div class="stat-label">Códigos Generados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayCodes">0</div>
+                    <div class="stat-label">Generados Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="userCodes">0</div>
+                    <div class="stat-label">Mis Códigos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button id="filterAllBtn" class="filter-btn active">Todos</button>
+                <button id="filterMyCodesBtn" class="filter-btn">Mis Códigos</button>
+            </div>
+        </div>
+
+        <!-- Buscador y Acciones -->
+        <div class="search-actions">
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Buscar por código, fecha o usuario...">
+                <button id="clearSearch" class="clear-search" style="display: none;">✕</button>
+            </div>
+            <div class="action-buttons">
+                <button id="refreshBtn" class="btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                    Actualizar
+                </button>
+                <button id="exportExcelBtn" class="btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    Exportar a Excel
+                </button>
+                <button id="clearHistoryBtn" class="btn-danger">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    Limpiar Mis Códigos
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de Códigos -->
+        <div class="table-container">
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Cargando códigos...</p>
+            </div>
+            <table id="codesTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Código NEU</th>
+                        <th>Fecha del Código</th>
+                        <th>Generado por</th>
+                        <th>Fecha de Generación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr class="empty-row">
+                        <td colspan="6">Conectando con Firebase...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination" id="pagination">
+            <button id="prevPage" disabled>Anterior</button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPage" disabled>Siguiente</button>
+        </div>
+
+        <!-- Notificación -->
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <!-- Firebase SDKs y lógica principal -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, where, Timestamp } from "firebase/firestore";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+
+        // Tu configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBdql3VerCJwgsz1H3ikxt23MffcCUZj0",
+            authDomain: "generadorneu.firebaseapp.com",
+            projectId: "generadorneu",
+            storageBucket: "generadorneu.firebasestorage.app",
+            messagingSenderId: "358064756986",
+            appId: "1:358064756986:web:a126bbd429f2baa6fc9143",
+            measurementId: "G-HLBGVJTTWG"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Variables globales
+        let currentUser = null;
+        let allCodes = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let currentSearch = '';
+        let currentFilter = 'all'; // 'all' o 'myCodes'
+
+        // Elementos DOM
+        const elements = {
+            generateBtn: document.getElementById('generateBtn'),
+            refreshBtn: document.getElementById('refreshBtn'),
+            searchInput: document.getElementById('searchInput'),
+            clearSearch: document.getElementById('clearSearch'),
+            filterAllBtn: document.getElementById('filterAllBtn'),
+            filterMyCodesBtn: document.getElementById('filterMyCodesBtn'),
+            exportExcelBtn: document.getElementById('exportExcelBtn'),
+            clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+            prevPage: document.getElementById('prevPage'),
+            nextPage: document.getElementById('nextPage'),
+            datePicker: document.getElementById('datePicker'),
+            tableBody: document.getElementById('tableBody'),
+            totalCodes: document.getElementById('totalCodes'),
+            todayCodes: document.getElementById('todayCodes'),
+            userCodes: document.getElementById('userCodes'),
+            statusText: document.getElementById('statusText'),
+            statusIndicator: document.querySelector('.status-indicator'),
+            loadingSpinner: document.getElementById('loadingSpinner'),
+            notification: document.getElementById('notification')
+        };
+
+        // Funciones auxiliares
+        function showNotification(message, type = 'success') {
+            elements.notification.textContent = message;
+            elements.notification.style.backgroundColor = type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545';
+            elements.notification.style.color = type === 'warning' ? '#000' : '#fff';
+            elements.notification.classList.add('show');
+            setTimeout(() => {
+                elements.notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            elements.loadingSpinner.style.display = show ? 'flex' : 'none';
+            const table = document.getElementById('codesTable');
+            if (table) table.style.opacity = show ? '0.5' : '1';
+        }
+
+        function formatDate(date) {
+            if (!date) return 'Fecha inválida';
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function formatDateTime(date) {
+            if (!date) return 'Fecha inválida';
+            return date.toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function generateRandomLetters() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let result = '';
+            for (let i = 0; i < 3; i++) {
+                result += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            return result;
+        }
+
+        function generateNEUCode(date) {
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const randomLetters = generateRandomLetters();
+            return `${year}${month}${day}_${randomLetters}`;
+        }
+
+        async function codeExists(code) {
+            try {
+                const codesRef = collection(db, 'neu_codes');
+                const q = query(codesRef, where('code', '==', code));
+                const querySnapshot = await getDocs(q);
+                return !querySnapshot.empty;
+            } catch (error) {
+                console.error('Error al verificar código:', error);
+                return false;
+            }
+        }
+
+        async function generateCode() {
+            if (!currentUser) {
+                showNotification('Esperando conexión con Firebase...', 'warning');
+                return;
+            }
+            
+            let selectedDate = elements.datePicker.value ? new Date(elements.datePicker.value) : new Date();
+            if (elements.datePicker.value) {
+                selectedDate = new Date(selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000);
+            }
+            
+            let code = generateNEUCode(selectedDate);
+            let attempts = 0;
+            const maxAttempts = 5;
+            
+            while (await codeExists(code) && attempts < maxAttempts) {
+                code = generateNEUCode(selectedDate);
+                attempts++;
+            }
+            
+            if (attempts >= maxAttempts) {
+                showNotification('Error: No se pudo generar un código único. Intenta de nuevo.', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const codesRef = collection(db, 'neu_codes');
+                await addDoc(codesRef, {
+                    code: code,
+                    codeDate: Timestamp.fromDate(selectedDate),
+                    createdAt: Timestamp.fromDate(new Date()),
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email || 'Usuario Anónimo'
+                });
+                
+                showNotification(`✅ Código generado: ${code}`, 'success');
+                elements.datePicker.value = '';
+                await loadCodes();
+                
+            } catch (error) {
+                console.error('Error al guardar código:', error);
+                showNotification('Error al guardar el código en Firebase', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteCode(id, userId) {
+            if (currentFilter === 'myCodes' || userId === currentUser?.uid) {
+                if (confirm('¿Estás seguro de que quieres eliminar este código?')) {
+                    showLoading(true);
+                    try {
+                        await deleteDoc(doc(db, 'neu_codes', id));
+                        showNotification('🗑️ Código eliminado correctamente', 'success');
+                        await loadCodes();
+                    } catch (error) {
+                        console.error('Error al eliminar:', error);
+                        showNotification('Error al eliminar el código', 'error');
+                    } finally {
+                        showLoading(false);
+                    }
+                }
+            } else {
+                showNotification('Solo puedes eliminar tus propios códigos', 'warning');
+            }
+        }
+
+        async function clearMyCodes() {
+            if (currentFilter !== 'myCodes') {
+                showNotification('Cambia al filtro "Mis Códigos" para limpiar tu historial', 'warning');
+                return;
+            }
+            
+            const myCodes = getFilteredCodes().filter(code => code.userId === currentUser?.uid);
+            
+            if (myCodes.length === 0) {
+                showNotification('No tienes códigos para eliminar', 'warning');
+                return;
+            }
+            
+            if (confirm(`⚠️ ¿Estás seguro? Esto eliminará TODOS TUS ${myCodes.length} códigos. Esta acción no se puede deshacer.`)) {
+                showLoading(true);
+                try {
+                    for (const code of myCodes) {
+                        await deleteDoc(doc(db, 'neu_codes', code.id));
+                    }
+                    showNotification(`🗑️ Eliminados ${myCodes.length} códigos`, 'success');
+                    await loadCodes();
+                } catch (error) {
+                    console.error('Error al limpiar historial:', error);
+                    showNotification('Error al limpiar el historial', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        async function loadCodes() {
+            showLoading(true);
+            
+            try {
+                const codesRef = collection(db, 'neu_codes');
+                const q = query(codesRef, orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                allCodes = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allCodes.push({
+                        id: doc.id,
+                        code: data.code,
+                        codeDate: data.codeDate.toDate(),
+                        createdAt: data.createdAt.toDate(),
+                        userId: data.userId,
+                        userEmail: data.userEmail || 'Anónimo'
+                    });
+                });
+                
+                updateStats();
+                renderTable();
+                
+            } catch (error) {
+                console.error('Error al cargar códigos:', error);
+                showNotification('Error al cargar los códigos', 'error');
+                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="6">Error al cargar datos. Intenta refrescar.</td></tr>';
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateStats() {
+            const total = allCodes.length;
+            const today = new Date().toDateString();
+            const todayCount = allCodes.filter(code => 
+                code.createdAt.toDateString() === today
+            ).length;
+            const userCodesCount = allCodes.filter(code => 
+                currentUser && code.userId === currentUser.uid
+            ).length;
+            
+            elements.totalCodes.textContent = total;
+            elements.todayCodes.textContent = todayCount;
+            elements.userCodes.textContent = userCodesCount;
+        }
+
+        function getFilteredCodes() {
+            let filtered = allCodes;
+            
+            if (currentFilter === 'myCodes' && currentUser) {
+                filtered = filtered.filter(code => code.userId === currentUser.uid);
+            }
+            
+            if (currentSearch) {
+                const searchTerm = currentSearch.toLowerCase();
+                filtered = filtered.filter(code => 
+                    code.code.toLowerCase().includes(searchTerm) ||
+                    formatDate(code.codeDate).toLowerCase().includes(searchTerm) ||
+                    code.userEmail.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            return filtered;
+        }
+
+        function renderTable() {
+            const filteredCodes = getFilteredCodes();
+            const totalPages = Math.ceil(filteredCodes.length / itemsPerPage);
+            
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) currentPage = 1;
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageCodes = filteredCodes.slice(start, end);
+            
+            if (pageCodes.length === 0) {
+                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="6">No hay códigos que coincidan con la búsqueda</td></tr>';
+                elements.prevPage.disabled = true;
+                elements.nextPage.disabled = true;
+                document.getElementById('pageInfo').textContent = 'Página 0 de 0';
+                return;
+            }
+            
+            elements.tableBody.innerHTML = pageCodes.map((code, index) => {
+                const isOwner = currentUser && code.userId === currentUser.uid;
+                return `
+                    <tr>
+                        <td>${start + index + 1}</td>
+                        <td>
+                            <strong style="color: #667eea; font-family: monospace; font-size: 1.1rem;">${code.code}</strong>
+                        </td>
+                        <td>${formatDate(code.codeDate)}</td>
+                        <td>
+                            <span class="user-badge ${isOwner ? 'owner' : ''}">
+                                ${code.userEmail === 'Usuario Anónimo' ? '👤 Anónimo' : `👤 ${code.userEmail}`}
+                                ${isOwner ? ' (Tú)' : ''}
+                            </span>
+                        </td>
+                        <td>${formatDateTime(code.createdAt)}</td>
+                        <td>
+                            <button class="copy-btn" onclick="window.copyToClipboard('${code.code}')">📋 Copiar</button>
+                            ${isOwner ? `<button class="delete-btn" onclick="window.deleteCodeById('${code.id}', '${code.userId}')">🗑️ Eliminar</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            elements.prevPage.disabled = currentPage === 1;
+            elements.nextPage.disabled = currentPage === totalPages;
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+        }
+
+        // Configurar autenticación
+        async function initAuth() {
+            try {
+                const userCredential = await signInAnonymously(auth);
+                currentUser = userCredential.user;
+                elements.statusText.textContent = 'Conectado';
+                elements.statusIndicator.classList.add('connected');
+                await loadCodes();
+            } catch (error) {
+                console.error('Error de autenticación:', error);
+                elements.statusText.textContent = 'Error de conexión';
+                elements.statusIndicator.classList.add('error');
+                showNotification('Error al conectar con Firebase. Verifica tu configuración.', 'error');
+            }
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            elements.generateBtn.addEventListener('click', generateCode);
+            elements.refreshBtn.addEventListener('click', loadCodes);
+            elements.exportExcelBtn.addEventListener('click', () => exportToExcel());
+            elements.clearHistoryBtn.addEventListener('click', clearMyCodes);
+            
+            elements.searchInput.addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                currentPage = 1;
+                elements.clearSearch.style.display = currentSearch ? 'block' : 'none';
+                renderTable();
+            });
+            
+            elements.clearSearch.addEventListener('click', () => {
+                elements.searchInput.value = '';
+                currentSearch = '';
+                elements.clearSearch.style.display = 'none';
+                currentPage = 1;
+                renderTable();
+            });
+            
+            elements.filterAllBtn.addEventListener('click', () => {
+                currentFilter = 'all';
+                elements.filterAllBtn.classList.add('active');
+                elements.filterMyCodesBtn.classList.remove('active');
+                currentPage = 1;
+                renderTable();
+            });
+            
+            elements.filterMyCodesBtn.addEventListener('click', () => {
+                currentFilter = 'myCodes';
+                elements.filterMyCodesBtn.classList.add('active');
+                elements.filterAllBtn.classList.remove('active');
+                currentPage = 1;
+                renderTable();
+            });
+            
+            elements.prevPage.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            
+            elements.nextPage.addEventListener('click', () => {
+                const filteredCodes = getFilteredCodes();
+                const totalPages = Math.ceil(filteredCodes.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            
+            document.addEventListener('keypress', (e) => {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    if (e.key === 'Enter') {
+                        generateCode();
+                    }
+                }
+            });
+        }
+
+        // Exportar a Excel
+        window.exportToExcel = function() {
+            const filteredCodes = getFilteredCodes();
+            
+            if (filteredCodes.length === 0) {
+                showNotification('⚠️ No hay datos para exportar', 'warning');
+                return;
+            }
+            
+            const exportData = filteredCodes.map((code, index) => ({
+                '#': index + 1,
+                'Código NEU': code.code,
+                'Fecha del Código': formatDate(code.codeDate),
+                'Generado por': code.userEmail,
+                'Fecha de Generación': formatDateTime(code.createdAt)
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Códigos NEU');
+            
+            const filterType = currentFilter === 'myCodes' ? 'mis_codigos' : 'todos';
+            const fileName = `neu_codes_${filterType}_${new Date().toISOString().slice(0,19)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            showNotification(`📊 Exportados ${filteredCodes.length} códigos a Excel`, 'success');
+        };
+
+        window.copyToClipboard = function(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification(`📋 Código "${code}" copiado al portapapeles`, 'success');
+            }).catch(() => {
+                showNotification('❌ Error al copiar el código', 'error');
+            });
+        };
+
+        window.deleteCodeById = function(id, userId) {
+            deleteCode(id, userId);
+        };
+
+        // Inicializar
+        setupEventListeners();
+        initAuth();
+    </script>
+</body>
+</html>
