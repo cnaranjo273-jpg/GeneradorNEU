@@ -799,7 +799,7 @@
             // Tomar primera letra del nombre y apellido (mayúsculas)
             const nameInitial = firstName && firstName.trim() ? firstName.trim()[0].toUpperCase() : 'X';
             const lastInitial = lastName && lastName.trim() ? lastName.trim()[0].toUpperCase() : 'X';
-            return `${year}${month}${day}_${randomLetters}-${nameInitial}${lastInitial}`;
+            return `${year}${month}${day}-${randomLetters}-${nameInitial}${lastInitial}`;
         }
 
         async function codeExists(code) {
