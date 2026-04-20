@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
     
     <style>
-        /* [Todos los estilos se mantienen igual que en el código anterior] */
         * {
             margin: 0;
             padding: 0;
@@ -136,12 +135,13 @@
 
         .form-group input, .form-group select {
             width: 100%;
-            max-width: 300px;
+            max-width: 350px;
             padding: 10px;
             border: 2px solid #dee2e6;
             border-radius: 8px;
             font-size: 1rem;
             transition: all 0.3s;
+            background: white;
         }
 
         .form-group input:focus, .form-group select:focus {
@@ -160,7 +160,7 @@
         .name-row {
             display: flex;
             gap: 15px;
-            max-width: 300px;
+            max-width: 350px;
         }
         .name-row .form-group {
             flex: 1;
@@ -385,7 +385,7 @@
             color: #003366;
             font-weight: 500;
         }
-        .copy-btn, .delete-btn, .subcode-btn, .view-subcodes-btn {
+        .copy-btn, .delete-btn, .subcode-btn {
             padding: 5px 10px;
             margin: 0 3px;
             border: none;
@@ -420,110 +420,6 @@
 
         .subcode-btn:hover {
             background: #0052a3;
-        }
-
-        .view-subcodes-btn {
-            background: #6c757d;
-            color: white;
-        }
-
-        .view-subcodes-btn:hover {
-            background: #5a6268;
-        }
-
-        .subcodes-container {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-
-        .subcode-item {
-            background: white;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border-left: 3px solid #0066CC;
-        }
-
-        .subcode-description {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
-            animation: slideIn 0.3s;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h3 {
-            color: #003366;
-            margin: 0;
-        }
-
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        .modal-body textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
         }
 
         .subcode-badge {
@@ -634,6 +530,81 @@
         .notification.show {
             opacity: 1;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #003366;
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
             .control-panel {
                 grid-template-columns: 1fr;
@@ -721,10 +692,70 @@
                     <input type="text" id="appName" placeholder="Nombre del proyecto" maxlength="100">
                     <small>Ej: Fondo rotativo, Caja chica, Bajas, etc.</small>
                 </div>
-                 <div class="form-group">
+                <div class="form-group">
                     <label for="estacion">Subestación</label>
-                    <input type="text" id="estacion" placeholder="Número de la subestación" maxlength="100">
-                    <small>Ej: 19, 25, 03, etc.</small>
+                    <select id="estacion">
+                        <option value="">-- Selecciona una subestación --</option>
+                        <option value="01">S/E (01) Olímpico</option>
+                        <option value="02">S/E (02) Luluncoto</option>
+                        <option value="03">S/E (03) Barrio Nuevo</option>
+                        <option value="04">S/E (04) Chimbacalle</option>
+                        <option value="05">S/E (05) Chilibulo</option>
+                        <option value="06">S/E (06) Escuela Sucre</option>
+                        <option value="07">S/E (07) San Roque</option>
+                        <option value="08">S/E (08) La Marín</option>
+                        <option value="09">S/E (09) Miraflores</option>
+                        <option value="10">S/E (10) Diez Vieja</option>
+                        <option value="11">S/E (11) Belisario Quevedo</option>
+                        <option value="12">S/E (12) La Floresta</option>
+                        <option value="13">S/E (13) Granda Centeno</option>
+                        <option value="14">S/E (14) Gualo</option>
+                        <option value="15">S/E (15) El Bosque</option>
+                        <option value="16">S/E (16) Rio Coca</option>
+                        <option value="17">S/E (17) Andalucía</option>
+                        <option value="18">S/E (18) Cristiania</option>
+                        <option value="19">S/E (19) Cotocollao</option>
+                        <option value="20">S/E (20) Sur</option>
+                        <option value="21">S/E (21) Eplicachima</option>
+                        <option value="22">S/E (22) San Antonio</option>
+                        <option value="23">S/E (23) Conocoto</option>
+                        <option value="24">S/E (24) Carolina</option>
+                        <option value="25">S/E (25) San Pablo</option>
+                        <option value="26">S/E (26) Alangasi</option>
+                        <option value="27">S/E (27) San Rafael</option>
+                        <option value="28">S/E (28) Iñaquito</option>
+                        <option value="29">S/E (29) Nueva Cumbayá</option>
+                        <option value="30">S/E (30) Plataforma Financiera</option>
+                        <option value="31">S/E (31) Tababela</option>
+                        <option value="32">S/E (32) Diez Nueva</option>
+                        <option value="33">S/E (33) Nuevo Aeropuerto</option>
+                        <option value="36">S/E (36) Tumbaco</option>
+                        <option value="37">S/E (37) Santa Rosa</option>
+                        <option value="38">S/E (38) Norte</option>
+                        <option value="39">S/E (39) Vicentina</option>
+                        <option value="41">S/E (41) Selva Alegre</option>
+                        <option value="42">S/E (42) Móvil Papallacta</option>
+                        <option value="46">S/E (46) El Inga Bajo</option>
+                        <option value="48">S/E (48) Mirador Alto</option>
+                        <option value="49">S/E (49) Los Bancos</option>
+                        <option value="51">S/E (51) Bicentenario</option>
+                        <option value="53">S/E (53) Pérez Guerrero</option>
+                        <option value="55">S/E (55) Sangolquí</option>
+                        <option value="57">S/E (57) Pomasqui</option>
+                        <option value="58">S/E (58) El Quinche</option>
+                        <option value="59">S/E (59) Eugenio Espejo</option>
+                        <option value="63">S/E (63) Batán Alto</option>
+                        <option value="68">S/E (68) Labrador</option>
+                        <option value="70">S/E (70) Shelter T-GOOD</option>
+                        <option value="73">S/E (73) El Obraje</option>
+                        <option value="80">S/E (80) Cumbayá</option>
+                        <option value="81">S/E (81) Estación Terrena</option>
+                        <option value="82">S/E (82) Gualberto Hernández</option>
+                        <option value="84">S/E (84) Guangopolo Hidráulica</option>
+                        <option value="86">S/E (86) Nayón</option>
+                        <option value="88">S/E (88) Pasochoa</option>
+                    </select>
+                    <small>Selecciona la subestación correspondiente</small>
                 </div>
                 <div class="form-group">
                     <label for="datePicker">
@@ -833,8 +864,6 @@
         </div>
         <div id="notification" class="notification"></div>
     </div>
-
-    <!-- Modal para crear subcódigo -->
     <div id="subcodeModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -872,7 +901,7 @@
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, where, Timestamp } from "firebase/firestore";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+        import { getAuth, signInAnonymously } from "firebase/auth";
         
         const firebaseConfig = {
             apiKey: "AIzaSyDBdql3VerCJwgsz1H3ikxt23MffcCUZj0",
@@ -961,7 +990,7 @@
             const day = date.getDate().toString().padStart(2, '0');
             const nameInitial = firstName && firstName.trim() ? firstName.trim()[0].toUpperCase() : 'X';
             const lastInitial = lastName && lastName.trim() ? lastName.trim()[0].toUpperCase() : 'X';
-            const numeroEstacion = estacion && estacion.trim() ? estacion.trim() : '00';
+            const numeroEstacion = estacion && estacion.trim() ? estacion.trim().padStart(2, '0') : '00';
             return `${year}${month}${day}-SE${numeroEstacion}-${nameInitial}${lastInitial}`;
         }
 
@@ -982,9 +1011,9 @@
                 showNotification('Esperando conexión con Firebase...', 'warning');
                 return;
             }
-            const estacionValue = elements.estacion.value.trim();
+            const estacionValue = elements.estacion.value;
             if (!estacionValue) {
-                showNotification('Por favor, ingresa el número de la subestación', 'warning');
+                showNotification('Por favor, selecciona una subestación', 'warning');
                 return;
             }
             const firstName = elements.firstName.value.trim();
@@ -1031,13 +1060,15 @@
                     generatedBy: fullName,
                     createdAt: Timestamp.fromDate(new Date()),
                     userId: currentUser.uid,
-                    userEmail: currentUser.email || 'Usuario Anónimo'
+                    userEmail: currentUser.email || 'Usuario Anónimo',
+                    estacion: estacionValue
                 });
                 
                 showNotification(`Código generado: ${code}`, 'success');
                 elements.firstName.value = '';
                 elements.lastName.value = '';
                 elements.appName.value = '';
+                elements.estacion.value = '';
                 elements.datePicker.value = '';
                 await loadCodes();
                 
@@ -1054,7 +1085,6 @@
                 if (confirm('¿Estás seguro de que quieres eliminar este código? Esto también eliminará todos sus subcódigos.')) {
                     showLoading(true);
                     try {
-                        // Eliminar subcódigos primero
                         const subcodesRef = collection(db, 'subcodes');
                         const q = query(subcodesRef, where('parentCodeId', '==', id));
                         const querySnapshot = await getDocs(q);
@@ -1063,7 +1093,6 @@
                             await deleteDoc(doc.ref);
                         }
                         
-                        // Eliminar código principal
                         await deleteDoc(doc(db, 'neu_codes', id));
                         showNotification('Código y subcódigos eliminados correctamente', 'success');
                         await loadCodes();
@@ -1092,11 +1121,10 @@
                 return;
             }
             
-            if (confirm(`¿Estás seguro? Esto eliminará TODOS TUS ${myCodes.length} códigos y sus subcódigos. Esta acción no se puede deshacer.`)) {
+            if (confirm(`¿Estás seguro? Esto eliminará TODOS TUS ${myCodes.length} códigos y sus subcódigos.`)) {
                 showLoading(true);
                 try {
                     for (const code of myCodes) {
-                        // Eliminar subcódigos
                         const subcodesRef = collection(db, 'subcodes');
                         const q = query(subcodesRef, where('parentCodeId', '==', code.id));
                         const querySnapshot = await getDocs(q);
@@ -1105,10 +1133,9 @@
                             await deleteDoc(doc.ref);
                         }
                         
-                        // Eliminar código
                         await deleteDoc(doc(db, 'neu_codes', code.id));
                     }
-                    showNotification(`Eliminados ${myCodes.length} códigos y sus subcódigos`, 'success');
+                    showNotification(`Eliminados ${myCodes.length} códigos`, 'success');
                     await loadCodes();
                 } catch (error) {
                     console.error('Error al limpiar historial:', error);
@@ -1123,7 +1150,6 @@
             showLoading(true);
             
             try {
-                // Cargar códigos principales
                 const codesRef = collection(db, 'neu_codes');
                 const q = query(codesRef, orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
@@ -1138,11 +1164,11 @@
                         generatedBy: data.generatedBy || data.userEmail || 'Anónimo',
                         createdAt: data.createdAt.toDate(),
                         userId: data.userId,
-                        userEmail: data.userEmail || 'Anónimo'
+                        userEmail: data.userEmail || 'Anónimo',
+                        estacion: data.estacion || ''
                     });
                 });
                 
-                // Cargar subcódigos
                 try {
                     const subcodesRef = collection(db, 'subcodes');
                     const subcodesSnapshot = await getDocs(subcodesRef);
@@ -1160,10 +1186,9 @@
                         });
                     });
                     
-                    // Ordenar subcódigos manualmente por fecha
                     allSubcodes.sort((a, b) => a.createdAt - b.createdAt);
                 } catch (subcodeError) {
-                    console.warn('Error al cargar subcódigos (posiblemente la colección no existe aún):', subcodeError);
+                    console.warn('Error al cargar subcódigos:', subcodeError);
                     allSubcodes = [];
                 }
                 
@@ -1174,12 +1199,12 @@
                 console.error('Error al cargar códigos:', error);
                 let errorMessage = 'Error al cargar los códigos. ';
                 if (error.code === 'permission-denied') {
-                    errorMessage += 'No tienes permisos. Actualiza las reglas de Firestore.';
+                    errorMessage += 'Actualiza las reglas de Firestore.';
                 } else {
                     errorMessage += 'Intenta refrescar.';
                 }
                 showNotification(errorMessage, 'error');
-                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="7">Error al cargar datos. Intenta refrescar.</td></tr>';
+                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="7">Error al cargar datos.</td></tr>';
             } finally {
                 showLoading(false);
             }
@@ -1223,9 +1248,7 @@
             const filteredCodes = getFilteredCodes();
             const totalPages = Math.ceil(filteredCodes.length / itemsPerPage);
             
-            if (currentPage > totalPages && totalPages > 0) {
-                currentPage = totalPages;
-            }
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
             
             const start = (currentPage - 1) * itemsPerPage;
@@ -1233,7 +1256,7 @@
             const pageCodes = filteredCodes.slice(start, end);
             
             if (pageCodes.length === 0) {
-                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay códigos que coincidan con la búsqueda</td></tr>';
+                elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay códigos</td></tr>';
                 elements.prevPage.disabled = true;
                 elements.nextPage.disabled = true;
                 document.getElementById('pageInfo').textContent = 'Página 0 de 0';
@@ -1258,7 +1281,7 @@
                         <td>${rowNumber++}</td>
                         <td>
                             <strong style="color: #003366; font-family: monospace; font-size: 1.1rem;">${escapeHtml(code.code)}</strong>
-                            ${subcodes.length > 0 ? `<span class="subcode-badge">${subcodes.length} subcódigo${subcodes.length !== 1 ? 's' : ''}</span>` : ''}
+                            ${subcodes.length > 0 ? `<span class="subcode-badge">${subcodes.length}</span>` : ''}
                         </td>
                         <td>${escapeHtml(code.appName)}</td>
                         <td><span class="user-badge ${isOwner ? 'owner' : ''}">${escapeHtml(code.generatedBy)}${isOwner ? ' (Tú)' : ''}</span></td>
@@ -1272,7 +1295,7 @@
                 `;
                 
                 if (isExpanded && subcodes.length > 0) {
-                    subcodes.forEach((subcode, index) => {
+                    subcodes.forEach((subcode) => {
                         html += `
                             <tr class="subcode-row">
                                 <td></td>
@@ -1428,11 +1451,7 @@
                 
             } catch (error) {
                 console.error('Error al guardar subcódigo:', error);
-                if (error.code === 'permission-denied') {
-                    showNotification('Error de permisos. Actualiza las reglas de Firestore.', 'error');
-                } else {
-                    showNotification('Error al guardar el subcódigo', 'error');
-                }
+                showNotification('Error al guardar el subcódigo', 'error');
             } finally {
                 showLoading(false);
             }
@@ -1443,11 +1462,11 @@
                 showLoading(true);
                 try {
                     await deleteDoc(doc(db, 'subcodes', id));
-                    showNotification('Subcódigo eliminado correctamente', 'success');
+                    showNotification('Subcódigo eliminado', 'success');
                     await loadCodes();
                 } catch (error) {
                     console.error('Error al eliminar subcódigo:', error);
-                    showNotification('Error al eliminar el subcódigo', 'error');
+                    showNotification('Error al eliminar', 'error');
                 } finally {
                     showLoading(false);
                 }
@@ -1492,17 +1511,16 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Códigos NEU');
             
-            const filterType = currentFilter === 'myCodes' ? 'mis_codigos' : 'todos';
-            const fileName = `NEU_codes_${filterType}_${new Date().toISOString().slice(0,19)}.xlsx`;
+            const fileName = `NEU_codes_${new Date().toISOString().slice(0,19)}.xlsx`;
             XLSX.writeFile(wb, fileName);
-            showNotification(`Exportados ${filteredCodes.length} códigos a Excel`, 'success');
+            showNotification(`Exportados ${filteredCodes.length} códigos`, 'success');
         };
 
         window.copyToClipboard = function(code) {
             navigator.clipboard.writeText(code).then(() => {
-                showNotification(`Código "${code}" copiado al portapapeles`, 'success');
+                showNotification(`Código "${code}" copiado`, 'success');
             }).catch(() => {
-                showNotification('Error al copiar el código', 'error');
+                showNotification('Error al copiar', 'error');
             });
         };
 
