@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
     
     <style>
+        /* [Todos los estilos se mantienen igual que en el código anterior] */
         * {
             margin: 0;
             padding: 0;
@@ -943,15 +944,6 @@
             if (table) table.style.opacity = show ? '0.5' : '1';
         }
 
-        function formatDate(date) {
-            if (!date) return 'Fecha inválida';
-            return date.toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
         function formatDateTime(date) {
             if (!date) return 'Fecha inválida';
             return date.toLocaleString('es-ES', {
@@ -961,15 +953,6 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-        }
-
-        function generateRandomLetters() {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            let result = '';
-            for (let i = 0; i < 3; i++) {
-                result += letters.charAt(Math.floor(Math.random() * letters.length));
-            }
-            return result;
         }
 
         function generateNEUCodeWithInitials(date, firstName, lastName, estacion) {
@@ -1159,32 +1142,43 @@
                     });
                 });
                 
-                // Cargar subcódigos sin ordenar por createdAt para evitar el error de índice
-                const subcodesRef = collection(db, 'subcodes');
-                const subcodesSnapshot = await getDocs(subcodesRef);
-                
-                allSubcodes = [];
-                subcodesSnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    allSubcodes.push({
-                        id: doc.id,
-                        parentCodeId: data.parentCodeId,
-                        name: data.name,
-                        description: data.description || '',
-                        createdAt: data.createdAt?.toDate() || new Date(),
-                        userId: data.userId
+                // Cargar subcódigos
+                try {
+                    const subcodesRef = collection(db, 'subcodes');
+                    const subcodesSnapshot = await getDocs(subcodesRef);
+                    
+                    allSubcodes = [];
+                    subcodesSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        allSubcodes.push({
+                            id: doc.id,
+                            parentCodeId: data.parentCodeId,
+                            name: data.name,
+                            description: data.description || '',
+                            createdAt: data.createdAt?.toDate() || new Date(),
+                            userId: data.userId
+                        });
                     });
-                });
-                
-                // Ordenar subcódigos manualmente por fecha
-                allSubcodes.sort((a, b) => a.createdAt - b.createdAt);
+                    
+                    // Ordenar subcódigos manualmente por fecha
+                    allSubcodes.sort((a, b) => a.createdAt - b.createdAt);
+                } catch (subcodeError) {
+                    console.warn('Error al cargar subcódigos (posiblemente la colección no existe aún):', subcodeError);
+                    allSubcodes = [];
+                }
                 
                 updateStats();
                 renderTable();
                 
             } catch (error) {
                 console.error('Error al cargar códigos:', error);
-                showNotification('Error al cargar los códigos. Revisa la consola para más detalles.', 'error');
+                let errorMessage = 'Error al cargar los códigos. ';
+                if (error.code === 'permission-denied') {
+                    errorMessage += 'No tienes permisos. Actualiza las reglas de Firestore.';
+                } else {
+                    errorMessage += 'Intenta refrescar.';
+                }
+                showNotification(errorMessage, 'error');
                 elements.tableBody.innerHTML = '<tr class="empty-row"><td colspan="7">Error al cargar datos. Intenta refrescar.</td></tr>';
             } finally {
                 showLoading(false);
@@ -1263,7 +1257,7 @@
                         </td>
                         <td>${rowNumber++}</td>
                         <td>
-                            <strong style="color: #003366; font-family: monospace; font-size: 1.1rem;">${code.code}</strong>
+                            <strong style="color: #003366; font-family: monospace; font-size: 1.1rem;">${escapeHtml(code.code)}</strong>
                             ${subcodes.length > 0 ? `<span class="subcode-badge">${subcodes.length} subcódigo${subcodes.length !== 1 ? 's' : ''}</span>` : ''}
                         </td>
                         <td>${escapeHtml(code.appName)}</td>
@@ -1316,8 +1310,6 @@
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
                 return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
             });
         }
 
@@ -1332,7 +1324,7 @@
                 console.error('Error de autenticación:', error);
                 elements.statusText.textContent = 'Error de conexión';
                 elements.statusIndicator.classList.add('error');
-                showNotification('Error al conectar con Firebase. Verifica tu configuración.', 'error');
+                showNotification('Error al conectar con Firebase', 'error');
             }
         }
 
@@ -1392,14 +1384,11 @@
             elements.saveSubcodeBtn.addEventListener('click', saveSubcode);
             
             document.addEventListener('keypress', (e) => {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                    if (e.key === 'Enter') {
-                        generateCode();
-                    }
+                if (e.key === 'Enter' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    generateCode();
                 }
             });
             
-            // Cerrar modal al hacer clic fuera
             window.onclick = function(event) {
                 if (event.target === elements.subcodeModal) {
                     closeSubcodeModal();
@@ -1439,7 +1428,11 @@
                 
             } catch (error) {
                 console.error('Error al guardar subcódigo:', error);
-                showNotification('Error al guardar el subcódigo', 'error');
+                if (error.code === 'permission-denied') {
+                    showNotification('Error de permisos. Actualiza las reglas de Firestore.', 'error');
+                } else {
+                    showNotification('Error al guardar el subcódigo', 'error');
+                }
             } finally {
                 showLoading(false);
             }
