@@ -793,7 +793,7 @@
         </div>
         
         <div id="loginPrompt" class="login-prompt">
-            <h3>🔐 Inicia sesión para continuar</h3>
+            <h3>Inicia sesión para continuar</h3>
             <p>Usa tu cuenta de Google para acceder a tus códigos desde cualquier dispositivo</p>
             <button id="googleLoginBtn" class="google-login-btn">
                 <img src="https://www.google.com/favicon.ico" alt="Google">
@@ -805,8 +805,6 @@
         
         <div id="notification" class="notification"></div>
     </div>
-
-    <!-- Modal para crear subcódigo -->
     <div id="subcodeModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -873,7 +871,6 @@
         let currentParentCodeId = null;
         let expandedRows = new Set();
         
-        // Elementos del DOM
         const loginPrompt = document.getElementById('loginPrompt');
         const mainContent = document.getElementById('mainContent');
         const loginBtn = document.getElementById('loginBtn');
@@ -886,7 +883,6 @@
         
         let elements = {};
 
-        // Función para normalizar texto (útil para búsquedas)
         function normalizeText(str) {
             if (!str) return '';
             return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -1430,9 +1426,9 @@
                         </td>
                         <td>${formatDateTime(code.createdAt)}</td>
                         <td>
-                            <button class="copy-btn" onclick="window.copyToClipboard('${code.code}')">📋 Copiar</button>
-                            <button class="subcode-btn" onclick="window.openSubcodeModal('${code.id}')">➕ Subcódigo</button>
-                            ${isOwner ? `<button class="delete-btn" onclick="window.deleteCodeById('${code.id}')">🗑️ Eliminar</button>` : ''}
+                            <button class="copy-btn" onclick="window.copyToClipboard('${code.code}')">Copiar</button>
+                            <button class="subcode-btn" onclick="window.openSubcodeModal('${code.id}')">Subcódigo</button>
+                            ${isOwner ? `<button class="delete-btn" onclick="window.deleteCodeById('${code.id}')">Eliminar</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -1607,13 +1603,13 @@
                 await Promise.all(batches);
                 
                 if (elements.migrationStatus) {
-                    elements.migrationStatus.textContent = `✅ Migración completada. ${processed} documentos actualizados.`;
+                    elements.migrationStatus.textContent = `Migración completada. ${processed} documentos actualizados.`;
                 }
                 showNotification(`Migración exitosa: ${processed} documentos`, 'success');
                 await loadCodes();
             } catch (error) {
                 if (elements.migrationStatus) {
-                    elements.migrationStatus.textContent = '❌ Error: ' + error.message;
+                    elements.migrationStatus.textContent = 'Error: ' + error.message;
                 }
                 showNotification('Error en migración', 'error');
             } finally {
@@ -1729,7 +1725,6 @@
             }
         }
 
-        // Funciones globales para acceso desde HTML
         window.copyToClipboard = (code) => {
             navigator.clipboard.writeText(code).then(() => showNotification(`Código "${code}" copiado`)).catch(() => showNotification('Error al copiar', 'error'));
         };
@@ -1751,14 +1746,12 @@
         };
         window.deleteSubcodeById = (id) => deleteSubcode(id);
 
-        // Eventos globales
         window.onclick = (event) => {
             if (event.target === elements.subcodeModal) {
                 window.closeSubcodeModal();
             }
         };
 
-        // Autenticación
         loginBtn.addEventListener('click', loginWithGoogle);
         googleLoginBtn.addEventListener('click', loginWithGoogle);
         logoutBtn.addEventListener('click', logout);
