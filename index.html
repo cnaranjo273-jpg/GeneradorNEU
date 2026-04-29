@@ -135,7 +135,7 @@
 
         .control-panel {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr;
             gap: 20px;
             padding: 30px;
             background: #F8F9FA;
@@ -195,33 +195,6 @@
         .name-row .form-group {
             flex: 1;
             margin-bottom: 0;
-        }
-
-        .stats-section {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 120px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-top: 3px solid #FFB81C;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #003366;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 5px;
         }
 
         .btn-primary, .btn-secondary, .btn-danger, .btn-warning {
@@ -439,7 +412,7 @@
             font-weight: 500;
         }
 
-        .copy-btn, .delete-btn, .subcode-btn {
+        .copy-btn, .delete-btn, .subcode-btn, .edit-btn {
             padding: 5px 10px;
             margin: 0 3px;
             border: none;
@@ -474,6 +447,15 @@
 
         .subcode-btn:hover {
             background: #0052a3;
+        }
+
+        .edit-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #d97706;
         }
 
         .subcode-badge {
@@ -712,19 +694,48 @@
             color: #6c757d;
         }
 
+        .editable-field {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .editable-field:hover {
+            background: #fff3cd;
+        }
+
+        .editable-input {
+            width: 100%;
+            max-width: 200px;
+            padding: 4px 8px;
+            border: 2px solid #f59e0b;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .save-edit-btn, .cancel-edit-btn {
+            padding: 3px 8px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .save-edit-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .cancel-edit-btn {
+            background: #6c757d;
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .control-panel {
                 grid-template-columns: 1fr;
-            }
-            
-            .stats-section {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .stat-card {
-                min-width: 100px;
-                padding: 15px;
             }
             
             .search-actions {
@@ -829,6 +840,29 @@
         </div>
     </div>
 
+    <div id="editAppModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Aplicación/Proyecto</h3>
+                <span class="close" onclick="window.closeEditAppModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editAppName">Nombre del Proyecto</label>
+                    <input type="text" id="editAppName" placeholder="Nombre del proyecto" maxlength="100">
+                </div>
+                <p style="font-size: 0.85rem; color: #6c757d; margin-top: 10px;">
+                    <strong>Código NEU:</strong> <span id="editAppCodeDisplay"></span><br>
+                    <small>El código NEU no se modificará, solo la aplicación/proyecto asociado.</small>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="window.closeEditAppModal()">Cancelar</button>
+                <button class="btn-primary" id="saveEditAppBtn">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -841,7 +875,7 @@
 
     <script type="module">
         import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, where, Timestamp, writeBatch } from "firebase/firestore";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, where, Timestamp, writeBatch, updateDoc } from "firebase/firestore";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
         
         const firebaseConfig = {
@@ -869,6 +903,7 @@
         let currentSearch = '';
         let currentFilter = 'all';
         let currentParentCodeId = null;
+        let currentEditCodeId = null;
         let expandedRows = new Set();
         
         const loginPrompt = document.getElementById('loginPrompt');
@@ -1058,20 +1093,6 @@
                             Generar Código NEU
                         </button>
                     </div>
-                    <div class="stats-section">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalCodes">0</div>
-                            <div class="stat-label">Códigos Generados</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="todayCodes">0</div>
-                            <div class="stat-label">Generados Hoy</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="userCodes">0</div>
-                            <div class="stat-label">Mis Códigos</div>
-                        </div>
-                    </div>
                 </div>
                 <div class="filter-section">
                     <div class="filter-buttons">
@@ -1148,7 +1169,6 @@
         function initializeAppElements() {
             elements = {
                 generateBtn: document.getElementById('generateBtn'),
-                migrateBtn: document.getElementById('migrateBtn'),
                 refreshBtn: document.getElementById('refreshBtn'),
                 searchInput: document.getElementById('searchInput'),
                 clearSearch: document.getElementById('clearSearch'),
@@ -1164,16 +1184,16 @@
                 appName: document.getElementById('appName'),
                 estacion: document.getElementById('estacion'),
                 tableBody: document.getElementById('tableBody'),
-                totalCodes: document.getElementById('totalCodes'),
-                todayCodes: document.getElementById('todayCodes'),
-                userCodes: document.getElementById('userCodes'),
                 loadingSpinner: document.getElementById('loadingSpinner'),
                 subcodeModal: document.getElementById('subcodeModal'),
                 subcodeName: document.getElementById('subcodeName'),
                 subcodeDescription: document.getElementById('subcodeDescription'),
                 saveSubcodeBtn: document.getElementById('saveSubcodeBtn'),
                 modalTitle: document.getElementById('modalTitle'),
-                migrationStatus: document.getElementById('migrationStatus')
+                editAppModal: document.getElementById('editAppModal'),
+                editAppName: document.getElementById('editAppName'),
+                editAppCodeDisplay: document.getElementById('editAppCodeDisplay'),
+                saveEditAppBtn: document.getElementById('saveEditAppBtn')
             };
             
             setupEventListeners();
@@ -1313,7 +1333,6 @@
                 });
                 
                 await loadSubcodes();
-                updateStats();
                 renderTable();
             } catch (error) {
                 console.error('Error:', error);
@@ -1350,19 +1369,6 @@
             } catch (e) {
                 allSubcodes = [];
             }
-        }
-
-        function updateStats() {
-            if (!elements.totalCodes) return;
-            
-            const total = allCodes.length;
-            const today = new Date().toDateString();
-            const todayCount = allCodes.filter(c => c.createdAt.toDateString() === today).length;
-            const userCount = allCodes.filter(c => currentUser && c.userId === currentUser.uid).length;
-            
-            elements.totalCodes.textContent = total;
-            elements.todayCodes.textContent = todayCount;
-            elements.userCodes.textContent = userCount;
         }
 
         function getFilteredCodes() {
@@ -1417,7 +1423,12 @@
                         <td>${subcodes.length ? `<span class="expand-icon" onclick="window.toggleExpand('${code.id}')">${isExpanded ? '▼' : '▶'}</span>` : ''}</td>
                         <td>${rowNum++}</td>
                         <td><strong style="color:#003366;font-family:monospace;font-size:1rem">${escapeHtml(code.code)}</strong>${subcodes.length ? `<span class="subcode-badge">${subcodes.length}</span>` : ''}</td>
-                        <td>${escapeHtml(code.appName)}</td>
+                        <td>
+                            <span class="editable-field" onclick="window.openEditAppModal('${code.id}', '${escapeHtml(code.appName).replace(/'/g, "\\'")}', '${escapeHtml(code.code).replace(/'/g, "\\'")}')" title="Click para editar">
+                                ${escapeHtml(code.appName)}
+                                ${isOwner ? '<span style="font-size:0.7rem;color:#f59e0b;margin-left:4px;">✎</span>' : ''}
+                            </span>
+                        </td>
                         <td>
                             <span class="user-badge ${isOwner ? 'owner' : ''}">
                                 ${code.userPhotoURL ? `<img src="${code.userPhotoURL}" alt="">` : ''}
@@ -1428,6 +1439,7 @@
                         <td>
                             <button class="copy-btn" onclick="window.copyToClipboard('${code.code}')">Copiar</button>
                             <button class="subcode-btn" onclick="window.openSubcodeModal('${code.id}')">Subcódigo</button>
+                            ${isOwner ? `<button class="edit-btn" onclick="window.openEditAppModal('${code.id}', '${escapeHtml(code.appName).replace(/'/g, "\\'")}', '${escapeHtml(code.code).replace(/'/g, "\\'")}')">Editar</button>` : ''}
                             ${isOwner ? `<button class="delete-btn" onclick="window.deleteCodeById('${code.id}')">Eliminar</button>` : ''}
                         </td>
                     </tr>
@@ -1460,6 +1472,57 @@
             if (!str) return '';
             const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;'};
             return str.replace(/[&<>]/g, m => map[m]);
+        }
+
+        function openEditAppModal(codeId, currentAppName, codeValue) {
+            if (!currentUser) return;
+
+            const code = allCodes.find(c => c.id === codeId);
+            if (!code || code.userId !== currentUser.uid) {
+                showNotification('Solo puedes editar tus propios códigos', 'warning');
+                return;
+            }
+            
+            currentEditCodeId = codeId;
+            elements.editAppName.value = currentAppName;
+            elements.editAppCodeDisplay.textContent = codeValue;
+            elements.editAppModal.style.display = 'block';
+        }
+
+        function closeEditAppModal() {
+            elements.editAppModal.style.display = 'none';
+            currentEditCodeId = null;
+        }
+
+        async function saveEditApp() {
+            const newAppName = elements.editAppName?.value.trim();
+            if (!newAppName) {
+                showNotification('El nombre del proyecto no puede estar vacío', 'warning');
+                return;
+            }
+            
+            if (!currentEditCodeId) {
+                showNotification('Error: No hay código seleccionado', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            try {
+                const codeRef = doc(db, 'neu_codes', currentEditCodeId);
+                await updateDoc(codeRef, {
+                    appName: newAppName,
+                    appName_search: normalizeText(newAppName)
+                });
+                
+                showNotification('Aplicación actualizada correctamente', 'success');
+                closeEditAppModal();
+                await loadCodes();
+            } catch (error) {
+                console.error('Error al actualizar:', error);
+                showNotification('Error al actualizar la aplicación', 'error');
+            } finally {
+                showLoading(false);
+            }
         }
 
         async function deleteCode(id) {
@@ -1561,62 +1624,6 @@
             }
         }
 
-        async function runMigration() {
-            if (!confirm('¿Ejecutar migración? Esto añadirá campos de búsqueda a todos los documentos existentes.')) return;
-            
-            showLoading(true);
-            if (elements.migrationStatus) elements.migrationStatus.textContent = 'Migrando... 0%';
-            
-            try {
-                const snapshot = await getDocs(collection(db, 'neu_codes'));
-                const total = snapshot.size;
-                let processed = 0;
-                let batch = writeBatch(db);
-                let batchCount = 0;
-                const batches = [];
-                
-                for (const docSnap of snapshot.docs) {
-                    const data = docSnap.data();
-                    const updates = {};
-                    
-                    if (!data.code_search) updates.code_search = normalizeText(data.code || '');
-                    if (!data.appName_search) updates.appName_search = normalizeText(data.appName || '');
-                    if (!data.generatedBy_search) updates.generatedBy_search = normalizeText(data.generatedBy || '');
-                    
-                    if (Object.keys(updates).length) {
-                        batch.update(docSnap.ref, updates);
-                        batchCount++;
-                        processed++;
-                    }
-                    
-                    if (batchCount >= 500) {
-                        batches.push(batch.commit());
-                        batch = writeBatch(db);
-                        batchCount = 0;
-                        if (elements.migrationStatus) {
-                            elements.migrationStatus.textContent = `Migrando... ${Math.round(processed/total*100)}%`;
-                        }
-                    }
-                }
-                
-                if (batchCount) batches.push(batch.commit());
-                await Promise.all(batches);
-                
-                if (elements.migrationStatus) {
-                    elements.migrationStatus.textContent = `Migración completada. ${processed} documentos actualizados.`;
-                }
-                showNotification(`Migración exitosa: ${processed} documentos`, 'success');
-                await loadCodes();
-            } catch (error) {
-                if (elements.migrationStatus) {
-                    elements.migrationStatus.textContent = 'Error: ' + error.message;
-                }
-                showNotification('Error en migración', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
         function exportToExcel() {
             const filtered = getFilteredCodes();
             if (!filtered.length) {
@@ -1657,11 +1664,11 @@
 
         function setupEventListeners() {
             if (elements.generateBtn) elements.generateBtn.addEventListener('click', generateCode);
-            if (elements.migrateBtn) elements.migrateBtn.addEventListener('click', runMigration);
             if (elements.refreshBtn) elements.refreshBtn.addEventListener('click', loadCodes);
             if (elements.exportExcelBtn) elements.exportExcelBtn.addEventListener('click', exportToExcel);
             if (elements.clearHistoryBtn) elements.clearHistoryBtn.addEventListener('click', clearMyCodes);
             if (elements.saveSubcodeBtn) elements.saveSubcodeBtn.addEventListener('click', saveSubcode);
+            if (elements.saveEditAppBtn) elements.saveEditAppBtn.addEventListener('click', saveEditApp);
             
             if (elements.searchInput) {
                 elements.searchInput.addEventListener('input', (e) => {
@@ -1740,6 +1747,8 @@
             if (elements.subcodeModal) elements.subcodeModal.style.display = 'none';
             currentParentCodeId = null;
         };
+        window.openEditAppModal = (codeId, currentAppName, codeValue) => openEditAppModal(codeId, currentAppName, codeValue);
+        window.closeEditAppModal = () => closeEditAppModal();
         window.toggleExpand = (codeId) => {
             expandedRows.has(codeId) ? expandedRows.delete(codeId) : expandedRows.add(codeId);
             renderTable();
@@ -1749,6 +1758,9 @@
         window.onclick = (event) => {
             if (event.target === elements.subcodeModal) {
                 window.closeSubcodeModal();
+            }
+            if (event.target === elements.editAppModal) {
+                window.closeEditAppModal();
             }
         };
 
